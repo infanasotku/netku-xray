@@ -31,3 +31,4 @@ go.work.sum
 __debug_*
 
 *.proto
+logs
