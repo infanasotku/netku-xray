@@ -1,0 +1,34 @@
+name: PR CI
+on:
+  pull_request:
+    branches:
+      - master
+    types: [synchronize, opened]
+
+jobs:
+  build:
+    name: Build xray
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.6"
+      - name: Install dependencies
+        working-directory: "services/xray"
+        run: go mod download
+      - name: Run build
+        working-directory: "services/xray"
+        run: go build .
+
+  docker:
+    name: Build xray in docker
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build docker image
+        run: docker build -f docker/xray.Dockerfile .
