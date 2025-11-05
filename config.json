@@ -1,0 +1,41 @@
+{
+  "log": {
+    "loglevel": "warning",
+    "access": "a_example.log",
+    "error": "e_example.log",
+    "dnsLog": false
+  },
+  "routing": { "rules": [], "domainStrategy": "AsIs" },
+  "inbounds": [
+    {
+      "port": 443,
+      "protocol": "vless",
+      "tag": "vless_tls",
+      "settings": {
+        "clients": [
+          {
+            "id": "d15f4d96-97be-4377-987e-188621dfaf42",
+            "flow": "xtls-rprx-vision"
+          }
+        ],
+        "decryption": "none",
+        "fallbacks": [{ "dest": "example.com" }]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "tls",
+        "tlsSettings": {
+          "alpn": ["http/1.1", "h2"],
+          "certificates": [
+            { "certificateFile": "example.crt", "keyFile": "example.key" }
+          ]
+        }
+      },
+      "sniffing": { "enabled": true, "destOverride": ["http", "tls"] }
+    }
+  ],
+  "outbounds": [
+    { "protocol": "freedom", "tag": "direct" },
+    { "protocol": "blackhole", "tag": "block" }
+  ]
+}
