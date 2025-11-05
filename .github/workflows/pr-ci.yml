@@ -2,7 +2,8 @@ name: PR CI
 on:
   pull_request:
     branches:
-      - master
+      - main
+      - test
     types: [synchronize, opened]
 
 jobs:
