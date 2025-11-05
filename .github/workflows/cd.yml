@@ -25,7 +25,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: docker/xray.Dockerfile
+          file: Dockerfile
           push: true
           tags: |
             ${{vars.REGISTRY_URL}}/netku/xray:prod-${{ github.run_number }}
