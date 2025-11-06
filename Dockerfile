@@ -19,4 +19,5 @@ USER nonroot
 
 EXPOSE 9000
 
-ENTRYPOINT ["/xray/xray"]
+WORKDIR /xray
+CMD ["/xray/xray"]
