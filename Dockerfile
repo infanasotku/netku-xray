@@ -12,10 +12,11 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /xray
 
 FROM gcr.io/distroless/static-debian12:nonroot AS final
 
-COPY --from=builder --chown=nonroot:nonroot --chmod=755 /xray /xray
+COPY --from=builder --chown=nonroot:nonroot --chmod=755 /xray /xray/xray
+COPY --from=builder --chown=nonroot:nonroot --chmod=755 /app/config.json /xray/config.json
 
 USER nonroot
 
 EXPOSE 9000
 
-CMD ["/xray"]
+ENTRYPOINT ["/xray/xray"]
