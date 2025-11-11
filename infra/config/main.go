@@ -1,13 +1,19 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/joho/godotenv"
 )
 
 func checkEnvs() error {
-	err := checkXrayEnvs()
+	err := checkCommonEnvs()
+	if err != nil {
+		return err
+	}
+	err = checkXrayEnvs()
 	if err != nil {
 		return err
 	}
@@ -19,6 +25,16 @@ func checkEnvs() error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func checkCommonEnvs() error {
+	_, ok := os.LookupEnv("ENGINE_ID")
+	if !ok {
+		return errors.New("ENGINE_ID not specified")
+	}
+
 	return nil
 }
 
