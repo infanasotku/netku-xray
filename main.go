@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/infanasotku/netku/services/xray/contracts"
 	"github.com/infanasotku/netku/services/xray/infra/caching"
 	"github.com/infanasotku/netku/services/xray/infra/config"
 	"github.com/infanasotku/netku/services/xray/infra/grpc"
@@ -33,7 +32,7 @@ func main() {
 	}
 	mainContext := context.Background()
 	ctx, cancel := context.WithCancel(mainContext)
-	go keepEngineStatus(ctx, xrayService, logrusLogger)
+	go keepEngineStatus(ctx, *xrayService, logrusLogger)
 
 	serve(logrusLogger, xrayService)
 	defer cancel()
@@ -52,7 +51,7 @@ func serve(logger *logrus.Logger, s *services.XrayService) {
 	if err != nil {
 		log.Fatalf("Failed to create grpc server: %v", err)
 	}
-	grpc.BindXrayServer(grpcServer, s, logger)
+	grpc.BindXrayServer(grpcServer, *s, logger)
 	grpc.BindHealthCheck(grpcServer)
 
 	if err := grpcServer.Serve(lis); err != nil {
@@ -61,7 +60,7 @@ func serve(logger *logrus.Logger, s *services.XrayService) {
 }
 
 // Redis keep engine alive status
-func keepEngineStatus(ctx context.Context, s contracts.XrayService, logger *logrus.Logger) {
+func keepEngineStatus(ctx context.Context, s services.XrayService, logger *logrus.Logger) {
 	parsedTTL, _ := strconv.Atoi(os.Getenv("ENGINE_TTL"))
 	interval := time.Duration(parsedTTL/2) * time.Second
 
@@ -91,13 +90,14 @@ func createXrayService() (*services.XrayService, error) {
 	ttl := time.Duration(parsedTtl) * time.Second
 	addr := os.Getenv("REDIS_ADDR")
 	pass := os.Getenv("REDIS_PASS")
+	engineID := os.Getenv("ENGINE_ID")
 	timezone := os.Getenv("TIMEZONE")
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {
 		return nil, fmt.Errorf("error while loading location: %v", err)
 	}
 
-	redisXrayClient, err := caching.CreateRedisXrayCachingClient(addr, pass, ttl)
+	redisXrayClient, err := caching.CreateRedisXrayCachingClient(addr, pass, ttl, engineID)
 	if err != nil {
 		return nil, fmt.Errorf("error while creating redis xray client: %v", err)
 	}
@@ -113,6 +113,6 @@ func createXrayService() (*services.XrayService, error) {
 	grpcAddr := os.Getenv("EXTERNAL_ADDR")
 
 	xrayService := services.XrayService{}
-	err = xrayService.Init(redisXrayClient, xrayConfig, grpcAddr, loc)
+	err = xrayService.Init(*redisXrayClient, xrayConfig, grpcAddr, loc)
 	return &xrayService, err
 }

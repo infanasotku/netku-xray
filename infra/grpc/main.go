@@ -6,8 +6,8 @@ import (
 
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"github.com/infanasotku/netku/services/xray/contracts"
 	"github.com/infanasotku/netku/services/xray/infra/grpc/gen"
+	"github.com/infanasotku/netku/services/xray/services"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -58,7 +58,7 @@ func CreateGPRCServer(logger *logrus.Logger, withReflection bool) (*grpc.Server,
 	return grpcServer, nil
 }
 
-func BindXrayServer(server *grpc.Server, xrayService contracts.XrayService, logger *logrus.Logger) {
+func BindXrayServer(server *grpc.Server, xrayService services.XrayService, logger *logrus.Logger) {
 	xray_server := XrayServer{xrayService: xrayService, logger: logger}
 
 	gen.RegisterXrayServer(server, &xray_server)

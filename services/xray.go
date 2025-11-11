@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/infanasotku/netku/services/xray/contracts"
+	"github.com/infanasotku/netku/services/xray/infra/caching"
 	"github.com/xtls/xray-core/core"
 	_ "github.com/xtls/xray-core/main/distro/all" // Important for loading xray engine properly
 )
@@ -26,16 +26,16 @@ type XrayConfig struct {
 }
 
 type XrayService struct {
-	cachingClient contracts.XrayCachingClient
+	cachingClient caching.RedisXrayCachingClient
 	engine        *core.Instance
 	config        *core.Config
-	info          *contracts.XrayInfo
+	info          *caching.XrayInfo
 	location      *time.Location
 }
 
-func (s *XrayService) Init(cachingClient contracts.XrayCachingClient, config *XrayConfig, grpcAddr string, location *time.Location) error {
+func (s *XrayService) Init(cachingClient caching.RedisXrayCachingClient, config *XrayConfig, grpcAddr string, location *time.Location) error {
 	s.cachingClient = cachingClient
-	s.info = &contracts.XrayInfo{Running: false, GRPCAddr: grpcAddr}
+	s.info = &caching.XrayInfo{Running: false, GRPCAddr: grpcAddr}
 	s.location = location
 	return s.configureXrayEngine(config)
 }
@@ -51,7 +51,7 @@ func (s *XrayService) CreateInfoWithTTL(context context.Context) error {
 
 func (s *XrayService) RefreshTTL(context context.Context) error {
 	err := s.cachingClient.RefreshTTL(context)
-	if errors.Is(err, contracts.ErrEngineHashNotFound) {
+	if errors.Is(err, caching.ErrEngineHashNotFound) {
 		return s.CreateInfoWithTTL(context)
 	} else if err != nil {
 		return err
