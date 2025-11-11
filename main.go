@@ -51,7 +51,7 @@ func serve(logger *logrus.Logger, s *services.XrayService) {
 	if err != nil {
 		log.Fatalf("Failed to create grpc server: %v", err)
 	}
-	grpc.BindXrayServer(grpcServer, s, logger)
+	grpc.BindXrayServer(grpcServer, *s, logger)
 	grpc.BindHealthCheck(grpcServer)
 
 	if err := grpcServer.Serve(lis); err != nil {

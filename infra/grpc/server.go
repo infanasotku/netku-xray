@@ -4,14 +4,14 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/infanasotku/netku/services/xray/contracts"
 	"github.com/infanasotku/netku/services/xray/infra/grpc/gen"
+	"github.com/infanasotku/netku/services/xray/services"
 	"github.com/sirupsen/logrus"
 )
 
 type XrayServer struct {
 	gen.UnimplementedXrayServer
-	xrayService contracts.XrayService
+	xrayService services.XrayService
 	logger      *logrus.Logger
 }
 
